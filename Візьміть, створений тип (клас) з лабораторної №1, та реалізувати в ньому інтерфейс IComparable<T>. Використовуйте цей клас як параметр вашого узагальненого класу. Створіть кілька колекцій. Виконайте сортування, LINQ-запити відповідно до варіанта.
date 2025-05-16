@@ -1,0 +1,136 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text; // Для підтримки української мови в консолі
+
+// Узагальнений клас CollectionType<T>
+public class CollectionType<T> : IEnumerable<T>
+{
+    private List<T> _items;
+
+    public CollectionType()
+    {
+        _items = new List<T>();
+    }
+
+    public CollectionType(IEnumerable<T> collection)
+    {
+        if (collection == null)
+            throw new ArgumentNullException(nameof(collection));
+        _items = new List<T>(collection);
+    }
+
+    public int Count => _items.Count;
+
+    public void Add(T item)
+    {
+        _items.Add(item);
+    }
+
+    public bool Remove(T item)
+    {
+        return _items.Remove(item);
+    }
+
+    public void Clear()
+    {
+        _items.Clear();
+    }
+
+    public bool Contains(T item)
+    {
+        return _items.Contains(item);
+    }
+
+    public T this[int index]
+    {
+        get
+        {
+            if (index < 0 || index >= _items.Count)
+                throw new IndexOutOfRangeException("Недійсний індекс.");
+            return _items[index];
+        }
+        set
+        {
+            if (index < 0 || index >= _items.Count)
+                throw new IndexOutOfRangeException("Недійсний індекс.");
+            _items[index] = value;
+        }
+    }
+
+    public static CollectionType<T> operator +(CollectionType<T> a, CollectionType<T> b)
+    {
+        return new CollectionType<T>(a._items.Concat(b._items));
+    }
+
+    public IEnumerator<T> GetEnumerator()
+    {
+        return _items.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    public override string ToString()
+    {
+        return string.Join(", ", _items);
+    }
+}
+
+// Клас Student з реалізацією IComparable
+public class Student : IComparable<Student>
+{
+    public string Name { get; set; }
+    public int Age { get; set; }
+    public double GPA { get; set; }
+
+    public int CompareTo(Student other)
+    {
+        if (other == null) return 1;
+        return GPA.CompareTo(other.GPA);
+    }
+
+    public override string ToString()
+    {
+        return $"{Name}, Вік: {Age}, Середній бал (GPA): {GPA}";
+    }
+}
+
+// Демонстрація в Main
+class Program
+{
+    static void Main()
+    {
+        // Увімкнення підтримки української мови в консолі
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.InputEncoding = Encoding.UTF8;
+
+        var students1 = new CollectionType<Student>();
+        students1.Add(new Student { Name = "Аліса", Age = 20, GPA = 3.5 });
+        students1.Add(new Student { Name = "Богдан", Age = 22, GPA = 3.2 });
+        students1.Add(new Student { Name = "Чарлі", Age = 21, GPA = 3.8 });
+
+        var students2 = new CollectionType<Student>();
+        students2.Add(new Student { Name = "Діана", Age = 23, GPA = 3.9 });
+        students2.Add(new Student { Name = "Єва", Age = 20, GPA = 3.6 });
+
+        var allStudents = students1 + students2;
+
+        Console.WriteLine("== Усі студенти ==");
+        foreach (var s in allStudents)
+            Console.WriteLine(s);
+
+        Console.WriteLine("\n== Відсортовано за середнім балом (GPA) ==");
+        var sorted = allStudents.OrderBy(s => s).ToList();
+        foreach (var s in sorted)
+            Console.WriteLine(s);
+
+        Console.WriteLine("\n== Студенти з GPA > 3.5 ==");
+        var topStudents = allStudents.Where(s => s.GPA > 3.5);
+        foreach (var s in topStudents)
+            Console.WriteLine(s);
+    }
+}
