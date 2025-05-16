@@ -1,0 +1,76 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+public class CollectionType
+{
+    public string Name { get; set; }
+    public Dictionary<int, int> Items { get; set; }
+
+    public CollectionType(string name, Dictionary<int, int> items)
+    {
+        Name = name;
+        Items = items;
+    }
+
+    public override string ToString()
+    {
+        return $"Колекція: {Name}, Елементи: [{string.Join(", ", Items.Select(kv => $"{kv.Key}:{kv.Value}"))}]";
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.InputEncoding = Encoding.UTF8;
+
+        CollectionType[] collections = new CollectionType[]
+        {
+            new CollectionType("Колекція1", new Dictionary<int, int> { {1, 5}, {2, -3}, {3, 10} }),
+            new CollectionType("Колекція2", new Dictionary<int, int> { {1, 2}, {2, 7}, {3, -8}, {4, 4} }),
+            new CollectionType("Колекція3", new Dictionary<int, int> { {1, 1}, {2, 6} }),
+            new CollectionType("Колекція4", new Dictionary<int, int> { {1, -1}, {2, -5}, {3, 3}, {4, 9}, {5, -2} })
+        };
+
+        Console.WriteLine("Колекції з від'ємними значеннями:");
+        var collectionsWithNegatives = collections
+            .Where(c => c.Items.Values.Any(v => v < 0))
+            .ToList();
+
+        if (collectionsWithNegatives.Any())
+        {
+            collectionsWithNegatives.ForEach(c => Console.WriteLine(c));
+        }
+        else
+        {
+            Console.WriteLine("Колекцій з від'ємними значеннями не знайдено.");
+        }
+
+        int targetKey = 3;
+        Console.WriteLine($"\nКолекції, що містять ключ {targetKey}:");
+
+        var collectionsWithTargetKey = collections
+            .Where(c => c.Items.ContainsKey(targetKey))
+            .ToList();
+
+        if (collectionsWithTargetKey.Any())
+        {
+            var maxCollection = collectionsWithTargetKey
+                .OrderByDescending(c => c.Items.Count)
+                .FirstOrDefault();
+            Console.WriteLine($"Максимальна колекція: {maxCollection}");
+
+            var minCollection = collectionsWithTargetKey
+                .OrderBy(c => c.Items.Count)
+                .FirstOrDefault();
+            Console.WriteLine($"Мінімальна колекція: {minCollection}");
+        }
+        else
+        {
+            Console.WriteLine($"Колекцій з ключем {targetKey} не знайдено.");
+        }
+    }
+}
