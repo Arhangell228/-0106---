@@ -1,0 +1,77 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text; // Додано для Encoding
+
+public class CollectionType<T> : IEnumerable<T>, IComparable<CollectionType<T>>
+{
+    private List<T> _items;
+
+    public CollectionType() => _items = new List<T>();
+    public CollectionType(IEnumerable<T> collection) => _items = new List<T>(collection);
+
+    public int Count => _items.Count;
+    public void Add(T item) => _items.Add(item);
+    public bool Remove(T item) => _items.Remove(item);
+
+    public T this[int index]
+    {
+        get => _items[index];
+        set => _items[index] = value;
+    }
+
+    public IEnumerator<T> GetEnumerator() => _items.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    public int CompareTo(CollectionType<T> other) => Count.CompareTo(other.Count);
+}
+
+class Program
+{
+    static void Main()
+    {
+        Console.OutputEncoding = Encoding.UTF8; // Додано
+        Console.InputEncoding = Encoding.UTF8;  // Додано
+
+        var numbers = new CollectionType<int> { 10, 5, 8, 20, 15, 3, 7, 12, 6, 25 };
+
+        // **1. Вибір парних чисел, відсортованих за зростанням, і перевірка, чи є такі**
+        var evenNumbers = numbers
+            .Where(x => x % 2 == 0)
+            .OrderBy(x => x)
+            .ToList();
+        bool hasEvenNumbers = evenNumbers.Any();
+        Console.WriteLine($"Парні числа (відсортовані): {string.Join(", ", evenNumbers)}");
+        Console.WriteLine($"Чи є парні числа? {hasEvenNumbers}");
+
+        // **2. Перше число > 10, але менше 20, або -1, якщо такого немає**
+        int firstInRange = numbers
+            .FirstOrDefault(x => x > 10 && x < 20, -1);
+        Console.WriteLine($"Перше число в діапазоні (10-20): {firstInRange}");
+
+        // **3. Сума всіх чисел, які більші за середнє значення**
+        double avg = numbers.Average();
+        var sumAboveAvg = numbers
+            .Where(x => x > avg)
+            .Sum();
+        Console.WriteLine($"Середнє: {avg}, Сума чисел > середнього: {sumAboveAvg}");
+
+        // **4. Вибір унікальних чисел, відсортованих за спаданням, і перевірка на наявність дублікатів**
+        var uniqueSorted = numbers
+            .Distinct()
+            .OrderByDescending(x => x)
+            .ToList();
+        bool hasDuplicates = numbers.Count() != uniqueSorted.Count;
+        Console.WriteLine($"Унікальні числа (спадання): {string.Join(", ", uniqueSorted)}");
+        Console.WriteLine($"Чи є дублікати? {hasDuplicates}");
+
+        // **5. Мінімальне та максимальне число серед тих, що діляться на 5**
+        var divisibleBy5 = numbers
+            .Where(x => x % 5 == 0)
+            .ToList();
+        int minDiv5 = divisibleBy5.Min();
+        int maxDiv5 = divisibleBy5.Max();
+        Console.WriteLine($"Числа, що діляться на 5: {string.Join(", ", divisibleBy5)}");
+        Console.WriteLine($"Мінімальне: {minDiv5}, Максимальне: {maxDiv5}");
+    }
+}
